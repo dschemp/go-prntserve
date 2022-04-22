@@ -10,7 +10,20 @@ import (
 )
 
 func GetFile(w http.ResponseWriter, r *http.Request) {
-	render.Render(w, r, response.ErrNotImplementedYet())
+	fileName := chi.URLParam(r, "filename")
+
+	data, err := GetFileFromFS(fileName)
+	if err != nil {
+		switch err {
+		case ErrFileNotFound:
+			render.Render(w, r, response.ErrNotFound())
+		default:
+			render.Render(w, r, response.ErrInternalServerError(err))
+		}
+		return
+	}
+
+	response.RespondRaw(w, r, data)
 }
 
 func HeadFile(w http.ResponseWriter, r *http.Request) {

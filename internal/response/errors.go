@@ -23,7 +23,7 @@ func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 func ErrNotImplementedYet() render.Renderer {
 	return &ErrResponse{
 		HTTPStatusCode: http.StatusNotImplemented,
-		Message:        "This is not implemented yet!",
+		Message:        "This has not been implemented yet!",
 		Code:           "NOT_IMPLEMENTED",
 	}
 }
@@ -60,7 +60,7 @@ func ErrUnauthorized(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
 		HTTPStatusCode: http.StatusUnauthorized,
-		Message:        "Unauthorized to access this resource!",
+		Message:        "You are not authorized to access this resource!",
 		Code:           "UNAUTHORIZED",
 		ErrorText:      err.Error(),
 	}
@@ -77,5 +77,15 @@ func ErrForbidden(err error) render.Renderer {
 		Message:        "You are not allowed to access this resource!",
 		Code:           "FORBIDDEN",
 		ErrorText:      err.Error(),
+	}
+}
+
+// ErrNotFound returns a render.Renderer prefilled with a generic not found message.
+// This should be used, if a resource could not be found, for example if it does not exist.
+func ErrNotFound() render.Renderer {
+	return &ErrResponse{
+		HTTPStatusCode: http.StatusNotFound,
+		Message:        "The requested resource could not be found!",
+		Code:           "NOT_FOUND",
 	}
 }

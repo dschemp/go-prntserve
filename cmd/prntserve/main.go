@@ -20,7 +20,7 @@ func main() {
 	}
 
 	log.Printf(`Probing storage path "%s"...`, cmd.StoragePath())
-	err := handler.ProbeStoragePath()
+	err := handler.ProbeStoragePathOnFS()
 	if err != nil {
 		log.Fatalln(err)
 	}
