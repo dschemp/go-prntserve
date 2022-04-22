@@ -1,0 +1,119 @@
+---
+openapi: 3.0.3
+
+info:
+  title: go-prntserve
+  description: 'This is a simple file bucket server based on [prntserve by Scrumplex](https://git.sr.ht/~scrumplex/prntserve).'
+  license:
+    name: GNU Affero General Public License v3.0
+    url: http://www.gnu.org/licenses/agpl-3.0.txt
+  version: 1.0.0
+
+externalDocs:
+  description: GitHub Repository
+  url: https://github.com/dschemp/go-prntserve
+
+servers:
+  - url: "{scheme}://{host}/{basepath}"
+    variables:
+      scheme:
+        enum: [http, https]
+        default: https
+      host:
+        default: localhost
+      basepath:
+        default: ""
+
+tags:
+  - name: prntserve
+    description: Download and Upload files to and from a file bucket server
+
+paths:
+  /{filename}:
+    get:
+      tags:
+        - prntserve
+      description: Get the file with the specified file name.
+      responses:
+        200:
+          $ref: '#/components/responses/fileFound'
+        307:
+          $ref: '#/components/responses/effectiveFileNameDifferent'
+        404:
+          $ref: '#/components/responses/fileNotFound'
+      security: []
+    head:
+      tags:
+        - prntserve
+      description: Get metadata about the file with the specified file name.
+      responses:
+        200:
+          $ref: '#/components/responses/fileFound'
+        307:
+          $ref: '#/components/responses/effectiveFileNameDifferent'
+        404:
+          $ref: '#/components/responses/fileNotFound'
+      security: []
+    put:
+      tags:
+        - prntserve
+      description: Upload a file to the server
+      responses:
+        200:
+          $ref: '#/components/responses/fileUploadSuccess'
+        307:
+          $ref: '#/components/responses/effectiveFileNameDifferent'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        409:
+          $ref: '#/components/responses/fileNameConflict'
+    delete:
+      tags:
+        - prntserve
+      description: Remove a file from the server
+      responses:
+        200:
+          $ref: '#/components/responses/fileUploadSuccess'
+        307:
+          $ref: '#/components/responses/effectiveFileNameDifferent'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/fileCouldNotDelete'
+        409:
+          $ref: '#/components/responses/fileNameNotDirOrFileConflict'
+    parameters:
+      - name: filename
+        description: Name of the file on the server
+        in: path
+        required: true
+        allowEmptyValue: false
+        style: simple
+        schema:
+          type: string
+
+components:
+  responses:
+    fileFound:
+      description: File exists
+    fileUploadSuccess:
+      description: File uploaded successfully
+    effectiveFileNameDifferent:
+      description: Effective file name is different from request
+    unauthorized:
+      description: You are not authorized
+    fileNotFound:
+      description: File could not found
+    fileCouldNotDelete:
+      description: File could not be deleted
+    fileNameConflict:
+      description: Target file name is already in use
+    fileNameNotDirOrFileConflict:
+      description: Target file name is neither a file not a directory
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+security:
+  - bearerAuth: []
