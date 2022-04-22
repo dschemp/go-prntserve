@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	noBearerToken      = errors.New("no bearer token passed")
-	invalidBearerToken = errors.New("invalid bearer token")
+	ErrNoBearerToken      = errors.New("no bearer token passed")
+	ErrInvalidBearerToken = errors.New("invalid bearer token")
 )
 
 func BearerToken(token string) func(http.Handler) http.Handler {
@@ -21,7 +21,7 @@ func BearerToken(token string) func(http.Handler) http.Handler {
 			requestID := middleware.GetReqID(r.Context())
 			bearerToken := r.Header.Get("Authorization")
 			if len(bearerToken) == 0 {
-				err := noBearerToken
+				err := ErrNoBearerToken
 				log.Printf("[%s] %s\n", requestID, err)
 				err = render.Render(w, r, response.ErrUnauthorized(err))
 				if err != nil {
@@ -32,7 +32,7 @@ func BearerToken(token string) func(http.Handler) http.Handler {
 
 			expected := fmt.Sprintf("Bearer %s", token)
 			if bearerToken != expected {
-				err := invalidBearerToken
+				err := ErrInvalidBearerToken
 				log.Printf("[%s] %s\n", requestID, err)
 				err = render.Render(w, r, response.ErrUnauthorized(err))
 				if err != nil {
