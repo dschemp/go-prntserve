@@ -96,3 +96,13 @@ func ErrNotFound() render.Renderer {
 		Code:           "NOT_FOUND",
 	}
 }
+
+// ErrMethodNotAllowed returns a render.Renderer prefilled with a generic method not allowed message.
+// This should be used, if a resource cannot be accessed with this certain method
+func ErrMethodNotAllowed() render.Renderer {
+	return &ErrResponse{
+		HTTPStatusCode: http.StatusMethodNotAllowed,
+		Message:        "You are trying to access this resource with an unsupported method!",
+		Code:           "METHOD_NOT_ALLOWED",
+	}
+}
