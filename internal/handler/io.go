@@ -63,7 +63,7 @@ func ProbeStoragePathOnFS() error {
 }
 
 func GetFileFromFS(fileName string) ([]byte, error) {
-	fullPath := path.Join(cmd.StoragePath(), fileName)
+	fullPath := path.Join(cmd.FullStoragePath(), fileName)
 
 	if !fileExistsOnFS(fullPath) {
 		return nil, ErrFileNotFound

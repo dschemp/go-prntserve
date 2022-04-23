@@ -1,6 +1,10 @@
 package cmd
 
-import "flag"
+import (
+	"flag"
+	"os"
+	"path"
+)
 
 var (
 	port               int
@@ -37,4 +41,10 @@ func BehindReverseProxy() bool {
 
 func StoragePath() string {
 	return storagePath
+}
+
+func FullStoragePath() string {
+	workDir, _ := os.Getwd()
+	storageDir := path.Join(workDir, storagePath)
+	return storageDir
 }
