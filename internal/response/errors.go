@@ -2,6 +2,7 @@ package response
 
 import (
 	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
 	"net/http"
 )
 
@@ -14,6 +15,11 @@ type ErrResponse struct {
 }
 
 func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	log.Debug().
+		Err(e.Err).
+		Int("status_code", e.HTTPStatusCode).
+		Str("code", e.Code).
+		Msg(e.Message)
 	render.Status(r, e.HTTPStatusCode)
 	return nil
 }

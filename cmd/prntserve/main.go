@@ -5,7 +5,8 @@ import (
 	internal "github.com/dschemp/go-prntserve/internal"
 	"github.com/dschemp/go-prntserve/internal/cmd"
 	"github.com/dschemp/go-prntserve/internal/handler"
-	"log"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"os"
 )
 
@@ -19,13 +20,37 @@ func main() {
 		os.Exit(0)
 	}
 
-	log.Printf(`Probing storage path "%s"...`, cmd.StoragePath())
+	// Setup logging
+	setupLogging()
+
+	log.Info().
+		Str("path", cmd.FullStoragePath()).
+		Str("state", "starting").
+		Msg("Probing storage path")
 	err := handler.ProbeStoragePathOnFS()
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal().Err(err)
 	}
-	log.Println("Probing storage path successfully.")
+	log.Info().
+		Str("result", "success").
+		Str("state", "done").
+		Msg("Probing storage path")
 
 	// Start server
 	internal.StartServer()
+}
+
+func setupLogging() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
+	zerolog.TimestampFieldName = "ts" // "timestamp"
+	if cmd.DebugLogging() {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	} else {
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	}
+	if !cmd.UseJSONLogging() {
+		log.Logger = log.Output(zerolog.ConsoleWriter{
+			Out: os.Stdout,
+		})
+	}
 }

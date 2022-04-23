@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 )
 
@@ -49,8 +49,13 @@ func StartServer() {
 	r := defaultRouter()
 	setupRoutes(r)
 
-	listenAddress := fmt.Sprintf("0.0.0.0:%d", cmd.Port())
+	listenAddress := fmt.Sprintf(":%d", cmd.Port())
+	log.Info().
+		Str("listenAddress", listenAddress).
+		Msg("Starting server")
 	log.Printf("Starting listening on %s\n", listenAddress)
 	err := http.ListenAndServe(listenAddress, r)
-	log.Fatalln(err)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
 }

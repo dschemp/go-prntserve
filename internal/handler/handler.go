@@ -4,8 +4,8 @@ import (
 	"github.com/dschemp/go-prntserve/internal/response"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -23,6 +23,10 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debug().
+		Str("filename", fileName).
+		Int("size", len(data)).
+		Msg("File found")
 	response.RespondRaw(w, r, data)
 }
 
@@ -56,7 +60,10 @@ func PutFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf(`Received new file "%s" with size %dB`, fileName, len(data))
+	log.Debug().
+		Str("filename", fileName).
+		Int("size", len(data)).
+		Msg("Received new file")
 	render.Render(w, r, response.ErrNotImplementedYet())
 }
 
