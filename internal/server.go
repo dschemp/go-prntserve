@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dschemp/go-prntserve/internal/cmd"
 	"github.com/dschemp/go-prntserve/internal/handler"
+	"github.com/dschemp/go-prntserve/internal/logging"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
@@ -24,7 +25,6 @@ import (
 func defaultRouter() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RedirectSlashes)
@@ -39,10 +39,14 @@ func defaultRouter() chi.Router {
 }
 
 func setupRoutes(r chi.Router) {
-	r.Get("/{filename}", handler.GetFile)
-	r.Head("/{filename}", handler.HeadFile)
-	r.With(BearerToken(cmd.Token())).Put("/{filename}", handler.PutFile)
-	r.With(BearerToken(cmd.Token())).Delete("/{filename}", handler.DeleteFile)
+	// For now only support files on top-most level and not directories.
+	// Implementing a directory server (like a file server) is more complex.
+	// See e. g. https://github.com/go-chi/chi/blob/master/_examples/fileserver/main.go#L53
+	fileRoute := "/{filepath:[a-zA-Z0-9-_.]+}"
+	r.Get(fileRoute, handler.GetFile)
+	r.Head(fileRoute, handler.HeadFile)
+	r.With(BearerToken(cmd.Token())).Put(fileRoute, handler.PutFile)
+	r.With(BearerToken(cmd.Token())).Delete(fileRoute, handler.DeleteFile)
 }
 
 func StartServer() {
@@ -51,9 +55,8 @@ func StartServer() {
 
 	listenAddress := fmt.Sprintf(":%d", cmd.Port())
 	log.Info().
-		Str("listenAddress", listenAddress).
+		Str(logging.ListenAddressFieldName, listenAddress).
 		Msg("Starting server")
-	log.Printf("Starting listening on %s\n", listenAddress)
 	err := http.ListenAndServe(listenAddress, r)
 	if err != nil {
 		log.Fatal().Err(err)

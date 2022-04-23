@@ -3,10 +3,11 @@ package response
 import (
 	"errors"
 	"fmt"
+	"github.com/dschemp/go-prntserve/internal/logging"
 	"github.com/dschemp/go-prntserve/internal/response"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 )
 
@@ -21,27 +22,29 @@ func BearerToken(token string) func(http.Handler) http.Handler {
 			requestID := middleware.GetReqID(r.Context())
 			bearerToken := r.Header.Get("Authorization")
 			if len(bearerToken) == 0 {
-				err := ErrNoBearerToken
-				log.Printf("[%s] %s\n", requestID, err)
-				err = render.Render(w, r, response.ErrUnauthorized(err))
-				if err != nil {
-					log.Println(err)
-				}
+				bearerTokenUnauthorized(w, r, ErrNoBearerToken, requestID)
 				return
 			}
 
 			expected := fmt.Sprintf("Bearer %s", token)
 			if bearerToken != expected {
-				err := ErrInvalidBearerToken
-				log.Printf("[%s] %s\n", requestID, err)
-				err = render.Render(w, r, response.ErrUnauthorized(err))
-				if err != nil {
-					log.Println(err)
-				}
+				bearerTokenUnauthorized(w, r, ErrInvalidBearerToken, requestID)
 				return
 			}
 
 			next.ServeHTTP(w, r)
 		})
+	}
+}
+
+func bearerTokenUnauthorized(w http.ResponseWriter, r *http.Request, err error, requestID string) {
+	log.Err(err).
+		Str(logging.RequestIDFieldName, requestID).
+		Msg("Authorization header is empty")
+	err = render.Render(w, r, response.ErrUnauthorized(err))
+	if err != nil {
+		log.Err(err).
+			Str(logging.RequestIDFieldName, requestID).
+			Msg("Unauthorized message could not be rendered")
 	}
 }
