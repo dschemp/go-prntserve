@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"syscall"
 )
 
 var (
@@ -22,21 +21,15 @@ func ProbeStoragePathOnFS() error {
 	// Check if directory exists
 	stat, err := os.Stat(dir)
 	// The error given by os.Stat should always be *PathError
-	if pErr, ok := err.(*os.PathError); ok {
-		if pErr.Err == syscall.ERROR_FILE_NOT_FOUND {
-			// If the directory does not exist, attempt to create it
-			if err := os.MkdirAll(dir, os.FileMode(folderPermissions)); err != nil {
-				return err
-			}
-			// The directory we created could be created and thus does not need to be further probed
-			return nil
-		} else {
-			// Return on any other error
-			return pErr
+	if errors.Is(err, os.ErrNotExist) {
+		// If the directory does not exist, attempt to create it
+		if err := os.MkdirAll(dir, os.FileMode(folderPermissions)); err != nil {
+			return err
 		}
+		// The directory we created could be created and thus does not need to be further probed
+		return nil
 	} else if err != nil {
-		// Panic if error is not *PathError as this should never happen
-		panic(err)
+		return err
 	}
 
 	if !stat.IsDir() {
@@ -79,8 +72,9 @@ func GetFileFromFS(fileName string) ([]byte, error) {
 
 func fileExistsOnFS(filePath string) bool {
 	_, err := os.Stat(filePath)
-	if pErr, ok := err.(*os.PathError); ok {
-		return pErr.Err != syscall.ERROR_FILE_NOT_FOUND
+
+	if errors.Is(err, os.ErrNotExist) {
+		return false
 	}
 
 	return true
