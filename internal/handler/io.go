@@ -9,10 +9,12 @@ import (
 )
 
 var (
-	ErrNotADir        = errors.New("path is not a directory")
-	ErrFileNotFound   = errors.New("file could not be found")
-	folderPermissions = 0750
-	probeFileName     = "__probe_"
+	ErrNotADir           = errors.New("path is not a directory")
+	ErrFileNotFound      = errors.New("file could not be found")
+	ErrFileAlreadyExists = errors.New("file already exists")
+	folderPermissions    = 0750
+	filePermissions      = 0660
+	probeFileName        = "__probe_"
 )
 
 func ProbeStoragePathOnFS() error {
@@ -55,10 +57,10 @@ func ProbeStoragePathOnFS() error {
 	return nil
 }
 
-func GetFileFromFS(fileName string) ([]byte, error) {
-	fullPath := path.Join(cmd.FullStoragePath(), fileName)
+func GetFileFromStorage(fileName string) ([]byte, error) {
+	fullPath := getAbsolutePathInStorage(fileName)
 
-	if !fileExistsOnFS(fullPath) {
+	if !FileExistsOnFS(fullPath) {
 		return nil, ErrFileNotFound
 	}
 
@@ -70,7 +72,22 @@ func GetFileFromFS(fileName string) ([]byte, error) {
 	return data, nil
 }
 
-func fileExistsOnFS(filePath string) bool {
+func SaveFileToStorage(fileName string, data []byte) error {
+	fullPath := getAbsolutePathInStorage(fileName)
+
+	if FileExistsOnFS(fullPath) {
+		return ErrFileAlreadyExists
+	}
+
+	err := os.WriteFile(fullPath, data, os.FileMode(filePermissions))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func FileExistsOnFS(filePath string) bool {
 	_, err := os.Stat(filePath)
 
 	if errors.Is(err, os.ErrNotExist) {
@@ -78,4 +95,8 @@ func fileExistsOnFS(filePath string) bool {
 	}
 
 	return true
+}
+
+func getAbsolutePathInStorage(relativeFilePath string) string {
+	return path.Join(cmd.FullStoragePath(), relativeFilePath)
 }
