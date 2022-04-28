@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"github.com/dschemp/go-prntserve/internal/logging"
 	"github.com/dschemp/go-prntserve/internal/response"
 	"github.com/go-chi/chi/v5"
@@ -8,6 +9,11 @@ import (
 	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
+)
+
+var (
+	ErrEmptyBody       = errors.New("empty body")
+	ErrNoFileNameFound = errors.New("no file name given")
 )
 
 func GetFile(w http.ResponseWriter, r *http.Request) {
@@ -41,12 +47,12 @@ func HeadFile(w http.ResponseWriter, r *http.Request) {
 func PutFile(w http.ResponseWriter, r *http.Request) {
 	filePath := chi.URLParam(r, "filepath")
 	if filePath == "" {
-		render.Render(w, r, response.ErrInternalServerErrorWithCustomMessage("no file name given"))
-		return
+		// This shouldn't really happen.
+		panic(ErrNoFileNameFound)
 	}
 
 	if r.ContentLength == 0 {
-		render.Render(w, r, response.ErrInternalServerErrorWithCustomMessage("empty body"))
+		render.Render(w, r, response.ErrBadRequest(ErrEmptyBody))
 		return
 	}
 

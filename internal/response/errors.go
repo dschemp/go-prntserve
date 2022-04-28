@@ -106,3 +106,15 @@ func ErrMethodNotAllowed() render.Renderer {
 		Code:           "METHOD_NOT_ALLOWED",
 	}
 }
+
+// ErrBadRequest returns a render.Renderer prefilled with a generic bad request message.
+// This should be used, if the client provided invalud request data.
+func ErrBadRequest(err error) render.Renderer {
+	return &ErrResponse{
+		Err:            err,
+		HTTPStatusCode: http.StatusBadRequest,
+		Message:        "The request you try to perform is invalid!",
+		Code:           "BAD_REQUEST",
+		ErrorText:      err.Error(),
+	}
+}
