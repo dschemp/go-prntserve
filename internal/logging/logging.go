@@ -19,6 +19,7 @@ const (
 	RequestIDFieldName      = "req_id"
 )
 
+// SetupLogging sets up some global logging parameters.
 func SetupLogging() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 	zerolog.TimestampFieldName = "ts" // "timestamp"

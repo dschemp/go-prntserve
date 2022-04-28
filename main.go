@@ -12,7 +12,7 @@ import (
 
 func main() {
 	cmd.ParseArguments()
-	fmt.Println("Welcome to prntserve!")
+	fmt.Println("Welcome to go-prntserve!")
 
 	if cmd.ShowVersion() {
 		// TODO: Show version

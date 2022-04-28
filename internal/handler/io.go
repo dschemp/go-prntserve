@@ -17,6 +17,8 @@ var (
 	probeFileName        = "__probe_"
 )
 
+// ProbeStoragePathOnFS tries to probe the target directory in which all files will be stored.
+// This ensures that the directory is available at start of the app.
 func ProbeStoragePathOnFS() error {
 	dir := cmd.StoragePath()
 
@@ -57,8 +59,10 @@ func ProbeStoragePathOnFS() error {
 	return nil
 }
 
-func GetFileFromStorage(fileName string) ([]byte, error) {
-	fullPath := getAbsolutePathInStorage(fileName)
+// GetFileFromStorage tries to retrieve a file by its relative path from the previously specified storage path.
+// This can return ErrFileNotFound or any error returned by ioutil.ReadFile.
+func GetFileFromStorage(relativeFilePath string) ([]byte, error) {
+	fullPath := getAbsolutePathInStorage(relativeFilePath)
 
 	if !FileExistsOnFS(fullPath) {
 		return nil, ErrFileNotFound
@@ -72,8 +76,10 @@ func GetFileFromStorage(fileName string) ([]byte, error) {
 	return data, nil
 }
 
-func SaveFileToStorage(fileName string, data []byte) error {
-	fullPath := getAbsolutePathInStorage(fileName)
+// SaveFileToStorage tries to save a file by its relative path to the previously specified storage path.
+// It can return ErrFileAlreadyExists or any error returned by os.WriteFile.
+func SaveFileToStorage(relativeFilePath string, data []byte) error {
+	fullPath := getAbsolutePathInStorage(relativeFilePath)
 
 	if FileExistsOnFS(fullPath) {
 		return ErrFileAlreadyExists
@@ -87,6 +93,8 @@ func SaveFileToStorage(fileName string, data []byte) error {
 	return nil
 }
 
+// FileExistsOnFS checks if a file exists on the file system.
+// If the specified file exists, then true is returned. Otherwise, false.
 func FileExistsOnFS(filePath string) bool {
 	_, err := os.Stat(filePath)
 

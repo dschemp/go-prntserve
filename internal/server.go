@@ -24,6 +24,7 @@ import (
 //	* middleware.CleanPath - cleans up redundant slashes in request paths
 //	* middleware.RealIP - [on demand] uses the IP address provided via the headers for internal processes
 //	* render.SetContentType - enables the automatic rendering of output into JSON
+//  * jwtauth.Verifier - checks the specified JWT token in the request
 func defaultRouter() chi.Router {
 	r := chi.NewRouter()
 
@@ -48,6 +49,7 @@ func defaultRouter() chi.Router {
 	return r
 }
 
+// setupRoutes assigns all routes for this application to a specified chi.Router.
 func setupRoutes(r chi.Router) {
 	// For now only support files on top-most level and not directories.
 	// Implementing a directory server (like a file server) is more complex.
@@ -59,11 +61,13 @@ func setupRoutes(r chi.Router) {
 	r.With(JWTAuthenticator).Delete(fileRoute, handler.DeleteFile)
 }
 
+// createInitialAccessJWT creates a JWT token (string) with no payload. This is intended to be used as an initial authentication token.
 func createInitialAccessJWT() string {
 	_, token, _ := cmd.JWTTokenAuth().Encode(nil)
 	return token
 }
 
+// StartServer sets up everything needed to run the server and then runs it.
 func StartServer() {
 	r := defaultRouter()
 	setupRoutes(r)
