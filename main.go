@@ -29,7 +29,9 @@ func main() {
 		Msg("Probing storage path")
 	err := handler.ProbeStoragePathOnFS()
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().
+			Err(err).
+			Msg("Error probing storage path")
 	}
 	log.Info().
 		Str(logging.ResultFieldName, "success").
