@@ -10,13 +10,19 @@ import (
 	"os"
 )
 
+var (
+	version      = "v0.0.0"  // will be set by the build pipeline (see Makefile)
+	buildNumber  = "unknown" // ^
+	distribution = "custom"  // ^
+)
+
 func main() {
 	cmd.ParseArguments()
 	fmt.Println("Welcome to go-prntserve!")
 
 	if cmd.ShowVersion() {
 		// TODO: Show version
-		fmt.Printf("Version: %s\n", "unknown")
+		fmt.Printf("Version: %s-%s (%s)\n", version, distribution, buildNumber)
 		os.Exit(0)
 	}
 
