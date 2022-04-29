@@ -105,6 +105,13 @@ func FileExistsOnFS(filePath string) bool {
 	return true
 }
 
+// FileExistsInStorage checks if a file exists in the specified storage.
+// If the specified file exists, then true is returned. Otherwise, false.
+func FileExistsInStorage(relativeFilePath string) bool {
+	filePath := getAbsolutePathInStorage(relativeFilePath)
+	return FileExistsOnFS(filePath)
+}
+
 func getAbsolutePathInStorage(relativeFilePath string) string {
 	return path.Join(cmd.FullStoragePath(), relativeFilePath)
 }

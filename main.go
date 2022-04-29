@@ -21,7 +21,6 @@ func main() {
 	fmt.Println("Welcome to go-prntserve!")
 
 	if cmd.ShowVersion() {
-		// TODO: Show version
 		fmt.Printf("Version: %s-%s (%s)\n", version, distribution, buildNumber)
 		os.Exit(0)
 	}
