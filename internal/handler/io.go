@@ -112,6 +112,22 @@ func FileExistsInStorage(relativeFilePath string) bool {
 	return FileExistsOnFS(filePath)
 }
 
+// DeleteFileInStorage deletes a file in the specified storage.
+func DeleteFileInStorage(relativeFilePath string) error {
+	filePath := getAbsolutePathInStorage(relativeFilePath)
+
+	if !FileExistsOnFS(filePath) {
+		return ErrFileNotFound
+	}
+
+	err := os.Remove(filePath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func getAbsolutePathInStorage(relativeFilePath string) string {
 	return path.Join(cmd.FullStoragePath(), relativeFilePath)
 }

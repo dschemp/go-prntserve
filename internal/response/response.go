@@ -40,3 +40,12 @@ func FileUploadedSuccessfully() render.Renderer {
 		Code:           "UPLOAD_FILE_SUCCESS",
 	}
 }
+
+// FileDeletedSuccessfully returns a render.Renderer intended to be used to signify, that a file has been deleted successfully.
+func FileDeletedSuccessfully() render.Renderer {
+	return &ServerResponse{
+		HTTPStatusCode: http.StatusOK,
+		Message:        "File deleted successfully!",
+		Code:           "DELETE_FILE_SUCCESS",
+	}
+}

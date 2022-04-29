@@ -46,10 +46,6 @@ func HeadFile(w http.ResponseWriter, r *http.Request) {
 
 func PutFile(w http.ResponseWriter, r *http.Request) {
 	filePath := chi.URLParam(r, "filepath")
-	if filePath == "" {
-		// This shouldn't really happen.
-		panic(ErrNoFileNameFound)
-	}
 
 	if r.ContentLength == 0 {
 		render.Render(w, r, response.ErrBadRequest(ErrEmptyBody))
@@ -107,6 +103,24 @@ func PutFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteFile(w http.ResponseWriter, r *http.Request) {
+	filePath := chi.URLParam(r, "filepath")
 
-	render.Render(w, r, response.ErrNotImplementedYet())
+	if !FileExistsInStorage(filePath) {
+		log.Err(ErrFileNotFound).
+			Str(logging.FileNameFieldName, filePath).
+			Msg("file could not be found")
+		render.Render(w, r, response.ErrNotFound())
+		return
+	}
+
+	err := DeleteFileInStorage(filePath)
+	if err != nil {
+		log.Err(err).
+			Str(logging.FileNameFieldName, filePath).
+			Msg("could not delete file")
+		render.Render(w, r, response.ErrInternalServerError(err))
+		return
+	}
+
+	render.Render(w, r, response.FileDeletedSuccessfully())
 }
