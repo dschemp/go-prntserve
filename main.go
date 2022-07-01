@@ -17,16 +17,17 @@ var (
 	distribution = "custom"  // ^
 )
 
-var versionString = fmt.Sprintf("%s-%s (%s)\n", version, distribution, buildNumber)
+var versionString = fmt.Sprintf("%s-%s (%s)", version, distribution, buildNumber)
+
+const envPrefix = "PRNTSERVE"
 
 func main() {
 	// cmd.ParseArguments()
 	app := &cli.App{
-		Name:     "go-prntserve",
-		Usage:    "A small and simple web app that allows for simple file up- and download",
-		Version:  versionString,
-		Flags:    appFlags(),
-		Commands: appCommands(),
+		Name:    "go-prntserve",
+		Usage:   "A small and simple web app that allows for simple file up- and download",
+		Version: versionString,
+		Flags:   appFlags(),
 		Authors: []*cli.Author{
 			{
 				Name:  "Daniel Schemp",
@@ -36,25 +37,24 @@ func main() {
 		Action: runApp,
 	}
 
-	cli.VersionFlag = &cli.BoolFlag{}
+	cli.VersionPrinter = func(cCtx *cli.Context) {
+		fmt.Println(versionString)
+	}
+
+	cli.VersionFlag = &cli.BoolFlag{
+		Name:  "version",
+		Usage: "Show the version",
+	}
+	cli.HelpFlag = &cli.BoolFlag{
+		Name:    "help",
+		Aliases: []string{"h"},
+		Usage:   "Show help",
+	}
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal().
 			Err(err).
 			Msg("Error occurred when running the application")
-	}
-}
-
-func appCommands() []*cli.Command {
-	return []*cli.Command{
-		{
-			Name:  "version",
-			Usage: "Show the version",
-			Action: func(context *cli.Context) error {
-				fmt.Println(versionString)
-				return nil
-			},
-		},
 	}
 }
 
@@ -65,12 +65,14 @@ func appFlags() []cli.Flag {
 			Usage:       "Address on which to listen",
 			Value:       ":8080",
 			Destination: &cmd.SETTINGS.ListenAddress,
+			EnvVars:     []string{envPrefix + "_LISTEN_ADDRESS"},
 		},
 		&cli.StringFlag{
 			Name:        "jwt.secret",
 			Usage:       "Instance-wide secret used for JWT authorization",
 			Value:       "CHANGE_ME",
 			Destination: &cmd.SETTINGS.JWTSecret,
+			EnvVars:     []string{envPrefix + "_JWT_SECRET"},
 		},
 		&cli.BoolFlag{
 			Name:        "web.rproxy",
@@ -83,10 +85,11 @@ func appFlags() []cli.Flag {
 			Usage:       "Folder path to the directory in which all files will be stored",
 			Value:       "files",
 			Destination: &cmd.SETTINGS.StoragePath,
+			EnvVars:     []string{envPrefix + "_STORAGE_PATH"},
 		},
 		&cli.BoolFlag{
 			Name:        "log.verbose",
-			Aliases:     []string{"v"},
+			Aliases:     []string{"v", "vvvv"},
 			Usage:       "Enable debug / verbose logging",
 			Value:       false,
 			Destination: &cmd.SETTINGS.UseDebugLogging,
