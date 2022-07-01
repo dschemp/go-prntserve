@@ -89,7 +89,7 @@ func appFlags() []cli.Flag {
 		},
 		&cli.BoolFlag{
 			Name:        "log.verbose",
-			Aliases:     []string{"v", "vvvv"},
+			Aliases:     []string{"v"},
 			Usage:       "Enable debug / verbose logging",
 			Value:       false,
 			Destination: &cmd.SETTINGS.UseDebugLogging,
