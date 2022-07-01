@@ -1,17 +1,16 @@
 package response
 
 import (
-	"fmt"
-	"github.com/dschemp/go-prntserve/internal/cmd"
-	"github.com/dschemp/go-prntserve/internal/handler"
-	"github.com/dschemp/go-prntserve/internal/logging"
-	"github.com/dschemp/go-prntserve/internal/response"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/jwtauth"
-	"github.com/go-chi/render"
-	"github.com/rs/zerolog/log"
-	"net/http"
+    "github.com/dschemp/go-prntserve/internal/cmd"
+    "github.com/dschemp/go-prntserve/internal/handler"
+    "github.com/dschemp/go-prntserve/internal/logging"
+    "github.com/dschemp/go-prntserve/internal/response"
+    "github.com/go-chi/chi/v5"
+    "github.com/go-chi/chi/v5/middleware"
+    "github.com/go-chi/jwtauth"
+    "github.com/go-chi/render"
+    "github.com/rs/zerolog/log"
+    "net/http"
 )
 
 // defaultRouter returns a router setup with all kinds of useful middlewares attached.
@@ -35,7 +34,7 @@ func defaultRouter() chi.Router {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(jwtauth.Verifier(cmd.JWTTokenAuth()))
 
-	if cmd.BehindReverseProxy() {
+	if cmd.IsBehindReverseProxy() {
 		r.Use(middleware.RealIP)
 	}
 
@@ -77,11 +76,10 @@ func StartServer() {
 		Str("access_token", token).
 		Msg("Created initial access token")
 
-	listenAddress := fmt.Sprintf(":%d", cmd.Port())
 	log.Info().
-		Str(logging.ListenAddressFieldName, listenAddress).
+		Str(logging.ListenAddressFieldName, cmd.ListenAddress()).
 		Msg("Starting server")
-	err := http.ListenAndServe(listenAddress, r)
+	err := http.ListenAndServe(cmd.ListenAddress(), r)
 	if err != nil {
 		log.Fatal().Err(err)
 	}
