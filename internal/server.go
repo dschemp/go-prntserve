@@ -1,16 +1,16 @@
 package response
 
 import (
-    "github.com/dschemp/go-prntserve/internal/cmd"
-    "github.com/dschemp/go-prntserve/internal/handler"
-    "github.com/dschemp/go-prntserve/internal/logging"
-    "github.com/dschemp/go-prntserve/internal/response"
-    "github.com/go-chi/chi/v5"
-    "github.com/go-chi/chi/v5/middleware"
-    "github.com/go-chi/jwtauth"
-    "github.com/go-chi/render"
-    "github.com/rs/zerolog/log"
-    "net/http"
+	"github.com/dschemp/go-prntserve/internal/cmd"
+	"github.com/dschemp/go-prntserve/internal/handler"
+	"github.com/dschemp/go-prntserve/internal/logging"
+	"github.com/dschemp/go-prntserve/internal/response"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth"
+	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
+	"net/http"
 )
 
 // defaultRouter returns a router setup with all kinds of useful middlewares attached.
@@ -27,7 +27,7 @@ import (
 func defaultRouter() chi.Router {
 	r := chi.NewRouter()
 
-	r.Use(middleware.Logger)
+	r.Use(logging.ChiLogger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RedirectSlashes)
 	r.Use(middleware.CleanPath)
